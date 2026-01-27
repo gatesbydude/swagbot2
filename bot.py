@@ -57,7 +57,7 @@ role_senator = 1376258876944551996
 role_newgen = 1323689803035840585
 
 # Ball count
-ball_number = 1
+nut_number = 1
 senate_no = 1
 
 
@@ -977,36 +977,36 @@ async def ban_list_file(interaction: discord.Interaction):
     guild=discord.Object(id=server_id),
 )
 async def sen_update(
-    interaction: discord.Interaction, senate_number: int, current_nuts_number: int
+    interaction: discord.Interaction, senate_number: int, current_nut_number: int
 ):
     user = interaction.user
     guild = bot.get_guild(server_id)
     if user in guild.get_role(role_admin).members:
-        global nuts_number
+        global nut_number
         global senate_no
 
         if senate_number != senate_no:
             senate_no = senate_number
-            nuts_number = 1
-        if current_nuts_number != nuts_number:
-            nuts_number = current_nuts_number
+            nut_number = 1
+        if current_nut_number != nut_number:
+            nut_number = current_nut_number
 
-        if 3 - len(str(nuts_number)) >= 0:
+        if 3 - len(str(nut_number)) >= 0:
             await interaction.response.send_message(
                 "Current Bill Identity Updated to: "
                 + (
                     "§"
                     + str(senate_no)
                     + "."
-                    + (3 - len(str(nuts_number))) * "0"
-                    + str(nuts_number)
+                    + (3 - len(str(nut_number))) * "0"
+                    + str(nut_number)
                 ),
                 ephemeral=True,
             )
         else:
             await interaction.response.send_message(
                 "Current Bill Identity Updated to: "
-                + ("§" + str(senate_no) + "." + str(nuts_number)),
+                + ("§" + str(senate_no) + "." + str(nut_number)),
                 ephemeral=True,
             )
         return
