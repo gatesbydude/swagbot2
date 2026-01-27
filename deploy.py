@@ -79,7 +79,8 @@ def install_bot(conf_path: str):
         os.path.expanduser(root_run_dir_path+"/bannedwords"),
         os.path.expanduser(root_run_dir_path+"/misc"),
         os.path.expanduser(root_run_dir_path+"/old-versions"),
-        os.path.expanduser(root_run_dir_path+"/pitroles")
+        os.path.expanduser(root_run_dir_path+"/pitroles"),
+        os.path.expanduser(root_run_dir_path+"/pigroles")
     ]
 
     for path in directory_paths:
@@ -107,6 +108,7 @@ def install_bot(conf_path: str):
     FILEinstalled.close()
     data = data.replace("__YOUR_TOKEN__", token_string)
     data = data.replace("__YOUR_LOG_PATH__", directory_paths[3])
+    data = data.replace("__YOUR_PIG_PATH__", directory_paths[4])
     data = data.replace("__YOUR_BAD_WORDS_PATH__", directory_paths[0])
     data = data.replace("__VERSION__", get_current_commit_hash())
     FILEinstalled = open(root_run_dir_path+"/"+g_bot_src, "w")
@@ -145,7 +147,8 @@ def test_bot(conf_path: str):
         os.path.expanduser(root_run_dir_path+"/bannedwords"),
         os.path.expanduser(root_run_dir_path+"/misc"),
         os.path.expanduser(root_run_dir_path+"/old-versions"),
-        os.path.expanduser(root_run_dir_path+"/pitroles")
+        os.path.expanduser(root_run_dir_path+"/pitroles"),
+        os.path.expanduser(root_run_dir_path+"/pigroles")
     ]
 
     for path in directory_paths:
@@ -161,6 +164,7 @@ def test_bot(conf_path: str):
     FILEinstalled.close()
     data = data.replace("__YOUR_TOKEN__", token_string)
     data = data.replace("__YOUR_LOG_PATH__", directory_paths[3])
+    data = data.replace("__YOUR_LOG_PATH__", directory_paths[4])
     data = data.replace("__YOUR_BAD_WORDS_PATH__", directory_paths[0])
     data = data.replace("__VERSION__", get_current_commit_hash())
     FILEinstalled = open(root_run_dir_path_test+"/"+g_bot_src_test, "w")
@@ -190,7 +194,8 @@ def update_bot(conf_path: str):
         os.path.expanduser(root_run_dir_path+"/bannedwords"),
         os.path.expanduser(root_run_dir_path+"/misc"),
         os.path.expanduser(root_run_dir_path+"/old-versions"),
-        os.path.expanduser(root_run_dir_path+"/pitroles")
+        os.path.expanduser(root_run_dir_path+"/pitroles"),
+        os.path.expanduser(root_run_dir_path+"/pigroles")
     ]
 
     for path in directory_paths:
@@ -212,6 +217,7 @@ def update_bot(conf_path: str):
     FILEinstalled.close()
     data = data.replace("__YOUR_TOKEN__", token_string)
     data = data.replace("__YOUR_LOG_PATH__", directory_paths[3])
+    data = data.replace("__YOUR_LOG_PATH__", directory_paths[4])
     data = data.replace("__YOUR_BAD_WORDS_PATH__", directory_paths[0])
     data = data.replace("__VERSION__", get_current_commit_hash())
     FILEinstalled = open(root_run_dir_path+"/"+g_bot_src, "w")

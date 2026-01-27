@@ -26,6 +26,7 @@ intents.members = True
 COMMIT = '__VERSION__'
 TOKEN = '__YOUR_TOKEN__'
 SYS_PIT_DIR_PATH = "__YOUR_LOG_PATH__"
+SYS_PIG_DIR_PATH = "__YOUR_PIG_PATH__"
 SYS_BADWORDS_DIR_PATH = "__YOUR_BAD_WORDS_PATH__"
 bot = commands.Bot(command_prefix="(", intents=intents)
 tree = bot.tree
@@ -48,6 +49,7 @@ role_owner = 938732039207809025
 role_bot_smileyface = 938795313815240734
 role_bot2 = 998594848582025269
 role_pitted = 1057342828205846538
+role_pigged = 1465664416132497582
 role_member = 938804320026099742
 role_swagballer = 1003732468370776125
 role_anyone = 1263879103803687046
@@ -372,6 +374,192 @@ async def calc(
     except ValueError:
         await interaction.response.send_message("Invalid input")
 
+
+
+# PIGGING SYSTEM
+async def generic_pig(
+    interaction, user
+):  # Use this when pigging someone in another function. Does not include reason.
+
+    user_id = str(user.id)  # gets user id
+    user_roles_ids = user.roles  # gets list of roles user has
+    list_len = len(user_roles_ids)
+    file = open(f"{SYS_PIG_DIR_PATH}/{user_id}", "w")
+    iterate = 0
+    while iterate < list_len:
+        file.write(
+            str(user_roles_ids[iterate].id) + "\n"
+        )  # write each role ID in to file
+        iterate = iterate + 1
+
+    file.close()
+    pig_role = discord.Object(id=role_pigged)
+    await user.edit(roles=[pig_role])
+
+        
+@tree.command(
+    name="pig", description="pigs someone", guild=discord.Object(id=server_id)
+)
+@app_commands.describe(reason="Reason will be posted in the public logging channel.")
+@app_commands.checks.has_any_role(role_mod, role_admin)
+async def pig(interaction: discord.Interaction, user: discord.Member, reason: str = ""):
+    if user.guild_permissions.manage_roles:
+        await interaction.response.send_message(
+            "https://cdn.discordapp.com/attachments/1239258065988222999/1261509266208981073/RDT_20240712_2224291177474633641757631.jpg?ex=6696834e&is=669531ce&hm=b441f6ee1d35f9e6e00823f493b26e7c859377ddf5a6f7c1930cb5ee7d21bcc8&.",
+            ephemeral=True,
+        )
+        return
+    bot_member = interaction.guild.get_member(bot.user.id)
+    bot_top_role = bot_member.top_role
+    user_top_role = user.top_role
+    pigged_gif = "https://tenor.com/view/dislike-gif-25989226"
+
+    if bot_top_role <= user_top_role:
+        await interaction.response.send_message(
+            "I do not have permission to modify roles for this user.", ephemeral=True
+        )
+        return
+
+    try:
+        #pit = bot.get_channel(channel_pit)
+        if reason != "":
+            await generic_pig(interaction, user)
+            await interaction.response.send_message(
+                f"{user.mention} has been pigged.\n{pigged_gif}"
+            )
+            channel = bot.get_channel(channel_pplofthepit)
+            await user.send(
+                f"You have been pigged in 69SwagBalls420 cord for reason: {reason}."
+            )
+            await channel.send(
+                f"{user.mention} ({user}) was pigged by {interaction.user.mention} for reason: {reason}."
+            )
+            #await pit.send(
+             #   f"A loud thud shakes the depths of the Pit as {user.mention} ({user}) falls to the ground... Welcome your new friend."
+            #)
+        elif reason == "":
+            await generic_pig(interaction, user)
+            channel = bot.get_channel(channel_pplofthepit)
+            await interaction.response.send_message(
+                f"{user.mention} has been pigged.\n{pigged_gif}"
+            )
+            await user.send(
+                f"You have been pigged in 69SwagBalls420 cord for undisclosed reasons."
+            )
+            await channel.send(
+                f"{user.mention} ({user}) was pigged by {interaction.user.mention} for unknown reasons! :pig2:"
+            )
+            #await pit.send(
+             #   f"A loud thud shakes the depths of the Pit as {user.mention} ({user}) falls to the ground... Welcome your new friend."
+            #)
+        else:
+            await interaction.response.send_message(
+                "https://cdn.discordapp.com/attachments/1239258065988222999/1261509266208981073/RDT_20240712_2224291177474633641757631.jpg?ex=6696834e&is=669531ce&hm=b441f6ee1d35f9e6e00823f493b26e7c859377ddf5a6f7c1930cb5ee7d21bcc8&.",
+                ephemeral=True,
+            )
+    except discord.Forbidden:
+        await interaction.response.send_message(
+            "403. I need to be higher in the role hiearchy.", ephemeral=True
+        )
+    except Exception as e:
+        await interaction.response.send_message(
+            f"An unexpected error occurred: {str(e)}", ephemeral=True
+        )
+
+
+
+async def generic_unpig(interaction, user):
+
+    user_id = str(user.id)
+    file_list = os.listdir(f"{SYS_PIG_DIR_PATH}")
+    fl_len = len(file_list)
+    iterator = 0
+    found = False
+    while iterator < fl_len:
+        if user_id == file_list[iterator]:
+            found = True
+            break
+        iterator = iterator + 1
+
+    if found == False:
+        await interaction.response.send_message(
+            "Could not find role ID's, applying greenrole"
+        )
+        greenrole = discord.Object(id=role_member)
+        await user.edit(roles=[greenrole])
+        return False
+
+    full_path = SYS_PIG_DIR_PATH + "/" + file_list[iterator]
+    role_ids = open(full_path, "r").read().split("\n")
+    role_ids_int = [int(role_id) for role_id in role_ids if role_id.strip().isdigit()]
+    roles_list_objects = [discord.Object(id=role_id) for role_id in role_ids_int]
+    await user.edit(roles=roles_list_objects)
+    os.remove(full_path)
+
+
+
+@tree.command(
+    name="unpig", description="unpigs someone", guild=discord.Object(id=server_id)
+)
+@app_commands.checks.has_any_role(role_mod, role_admin)
+@app_commands.describe(reason="Reason will be posted in the public logging channel.")
+async def unpig(
+    interaction: discord.Interaction, user: discord.Member, reason: str = ""
+):
+    if user.guild_permissions.manage_roles:
+        await interaction.response.send_message(
+            "https://cdn.discordapp.com/attachments/1239258065988222999/1261509266208981073/RDT_20240712_2224291177474633641757631.jpg?ex=6696834e&is=669531ce&hm=b441f6ee1d35f9e6e00823f493b26e7c859377ddf5a6f7c1930cb5ee7d21bcc8&.",
+            ephemeral=True,
+        )
+        return
+    bot_member = interaction.guild.get_member(bot.user.id)
+    bot_top_role = bot_member.top_role
+    user_top_role = user.top_role
+
+    if bot_top_role <= user_top_role:
+        await interaction.response.send_message(
+            "I do not have permission to modify roles for this user.", ephemeral=True
+        )
+        return
+
+    try:
+        if reason != "":
+            if await generic_unpig(interaction, user) == False:
+                return
+
+            await interaction.response.send_message(
+                f"{user.mention}, who rolled in a puddle of mud and came out clean on the other side.\nhttps://cdn.discordapp.com/attachments/938728183203758082/1129104885154074704/attachment.gif"
+            )
+            channel = bot.get_channel(channel_pplofthepit)
+            await channel.send(
+                f"{user.mention} ({user}) was unpigged by {interaction.user.mention} for reason: {reason}"
+            )
+
+        elif reason == "":
+            if await generic_unpig(interaction, user) == False:
+                return
+            await interaction.response.send_message(
+                f"{user.mention}, who rolled in a puddle of mud and came out clean on the other side.\nhttps://cdn.discordapp.com/attachments/938728183203758082/1129104885154074704/attachment.gif"
+            )
+            channel = bot.get_channel(channel_pplofthepit)
+            await channel.send(
+                f"{user.mention} ({user}) was unpigged by {interaction.user.mention} for unknown reasons!"
+            )
+        else:
+            await interaction.response.send_message(
+                "https://cdn.discordapp.com/attachments/1239258065988222999/1261509266208981073/RDT_20240712_2224291177474633641757631.jpg?ex=6696834e&is=669531ce&hm=b441f6ee1d35f9e6e00823f493b26e7c859377ddf5a6f7c1930cb5ee7d21bcc8&.",
+                ephemeral=True,
+            )
+    except discord.Forbidden:
+        await interaction.response.send_message(
+            "403. I need to be higher in the role hiearchy.", ephemeral=True
+        )
+    except Exception as e:
+        await interaction.response.send_message(
+            f"An unexpected error occurred: {str(e)}", ephemeral=True
+        )
+
+    
 
 # PITTING SYSTEM
 async def generic_pit(
@@ -781,44 +969,44 @@ async def ban_list_file(interaction: discord.Interaction):
     await interaction.response.send_message("This does nothing yet", ephemeral=True)
     
 
-# SENATE BALLS
+# SENATE BALLS (Now called Nuts)
 
 @tree.command(
     name="senate-update",
-    description="Admin only. Updates current parliament or resets ball count for sake of keeping track of bills.",  # used to track ball numbers, for organizational purposes
+    description="Admin only. Updates current parliament or resets nuts count for sake of keeping track of bills.",  # used to track nuts numbers, for organizational purposes
     guild=discord.Object(id=server_id),
 )
 async def sen_update(
-    interaction: discord.Interaction, senate_number: int, current_ball_number: int
+    interaction: discord.Interaction, senate_number: int, current_nuts_number: int
 ):
     user = interaction.user
     guild = bot.get_guild(server_id)
     if user in guild.get_role(role_admin).members:
-        global ball_number
+        global nuts_number
         global senate_no
 
         if senate_number != senate_no:
             senate_no = senate_number
-            ball_number = 1
-        if current_ball_number != ball_number:
-            ball_number = current_ball_number
+            nuts_number = 1
+        if current_nuts_number != nuts_number:
+            nuts_number = current_nuts_number
 
-        if 3 - len(str(ball_number)) >= 0:
+        if 3 - len(str(nuts_number)) >= 0:
             await interaction.response.send_message(
                 "Current Bill Identity Updated to: "
                 + (
                     "§"
                     + str(senate_no)
                     + "."
-                    + (3 - len(str(ball_number))) * "0"
-                    + str(ball_number)
+                    + (3 - len(str(nuts_number))) * "0"
+                    + str(nuts_number)
                 ),
                 ephemeral=True,
             )
         else:
             await interaction.response.send_message(
                 "Current Bill Identity Updated to: "
-                + ("§" + str(senate_no) + "." + str(ball_number)),
+                + ("§" + str(senate_no) + "." + str(nuts_number)),
                 ephemeral=True,
             )
         return
@@ -828,7 +1016,7 @@ async def sen_update(
 class Buttons(discord.ui.View):
     def __init__(
         self, title, description, user, *, message=None, timeout=43200
-    ):  # Ball is active for 12 hours
+    ):  # Ball (nut) is active for 12 hours
         super().__init__(timeout=timeout)
         guild = bot.get_guild(server_id)
         self.senators = guild.get_role(role_senator).members  # Senator list
@@ -847,8 +1035,8 @@ class Buttons(discord.ui.View):
         self.message = await self.channel.fetch_message(message_id)
 
         embedUpdate = discord.Embed(title=self.title, color=discord.Color.yellow())
-        embedUpdate.add_field(name="Ball Sponsor", value=self.user.mention, inline=True)
-        embedUpdate.add_field(name="Ball description", value=self.description)
+        embedUpdate.add_field(name="Nuts Sponsor", value=self.user.mention, inline=True)
+        embedUpdate.add_field(name="Nuts description", value=self.description)
         cur_votes = ""
         for i in range(len(self.senators)):
             cur_votes += f"{self.votes[i]}{self.senators[i].mention}\n"
@@ -941,7 +1129,7 @@ class Buttons(discord.ui.View):
         new_embed.add_field(name="ABSTAIN", value=cur_votes)
 
         await bot.get_channel(channel_senate).send(
-            f"# Voting for the following ball has ended:\n## {self.title}\n### Sponsored by Senator {self.user}\n {self.description}\n",
+            f"# Voting for the following nut has ended:\n## {self.title}\n### Sponsored by Senator {self.user}\n {self.description}\n",
             embed=new_embed,
         )
 
@@ -949,41 +1137,41 @@ class Buttons(discord.ui.View):
 
 
 @tree.command(
-    name="make-a-ball",
-    description="Make a parliament ball.",
+    name="make-a-nut",
+    description="Make a parliament nut.",
     guild=discord.Object(id=server_id),
 )
-async def ball(
+async def nut(
     interaction: discord.Interaction,
     title: str,
     description: str = "",
     ping: Literal["Yes", "No"] = "",
 ):
-    global ball_number
+    global nut_number
     global senate_no
 
     user = interaction.user
     guild = bot.get_guild(server_id)
     if (
-        3 - len(str(ball_number)) >= 0
-    ):  # ball numbering system, results in §SenNo.BallNo, eg. §6.027
+        3 - len(str(nut_number)) >= 0
+    ):  # ball (nut) numbering system, results in §SenNo.Ball (nut) No, eg. §6.027
         title = (
             "§"
             + str(senate_no)
             + "."
-            + (3 - len(str(ball_number))) * "0"
-            + str(ball_number)
+            + (3 - len(str(nut_number))) * "0"
+            + str(nut_number)
             + ": "
             + title
         )
     else:
-        title = "§" + str(senate_no) + "." + str(ball_number) + ": " + title
+        title = "§" + str(senate_no) + "." + str(nut_number) + ": " + title
 
     sens = guild.get_role(role_senator).members
     if user in sens:
         embed = discord.Embed(title=title, color=discord.Color.yellow())
-        embed.add_field(name="Ball Sponsor", value=user.mention, inline=True)
-        embed.add_field(name="Ball description", value=description)
+        embed.add_field(name="Nut Sponsor", value=user.mention, inline=True)
+        embed.add_field(name="Nut description", value=description)
         cur_votes = ""
         for i in range(len(sens)):
             cur_votes += f"⬜{sens[i].mention}\n"
@@ -1001,7 +1189,7 @@ async def ball(
             message = await interaction.response.send_message(embed=embed, view=view)
         view.message = await interaction.original_response()
 
-        ball_number += 1
+        nut_number += 1
         await view.wait()
     else:
         await interaction.response.send_message(
