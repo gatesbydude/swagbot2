@@ -528,7 +528,7 @@ async def unpig(
                 return
 
             await interaction.response.send_message(
-                f"{user.mention}, who rolled in a puddle of mud and came out clean on the other side.\nhttps://cdn.discordapp.com/attachments/938728183203758082/1129104885154074704/attachment.gif"
+                f"{user.mention}, who rolled in a puddle of mud and came out clean on the other side.\nhttps://media.discordapp.net/attachments/977196983573938208/1466855307786322155/attachment.gif?ex=697e42f6&is=697cf176&hm=23f0a4efbe0ef94052d6cb03155338ca894884183bb935a2b84e56f100bce160&="
             )
             channel = bot.get_channel(channel_pplofthepit)
             await channel.send(
@@ -539,7 +539,7 @@ async def unpig(
             if await generic_unpig(interaction, user) == False:
                 return
             await interaction.response.send_message(
-                f"{user.mention}, who rolled in a puddle of mud and came out clean on the other side.\nhttps://cdn.discordapp.com/attachments/938728183203758082/1129104885154074704/attachment.gif"
+                f"{user.mention}, who rolled in a puddle of mud and came out clean on the other side.\nhttps://media.discordapp.net/attachments/977196983573938208/1466855307786322155/attachment.gif?ex=697e42f6&is=697cf176&hm=23f0a4efbe0ef94052d6cb03155338ca894884183bb935a2b84e56f100bce160&="
             )
             channel = bot.get_channel(channel_pplofthepit)
             await channel.send(
